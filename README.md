@@ -3,95 +3,100 @@ Computational materials science project using LAMMPS, MEAM potentials, and post-
 
 ---
 
-## 📁 Folder Structure Overview
-MM309N_Assignment2_Group9/
+## 🔬 Project Overview
+
+This project performs large-scale atomistic simulations to:
+- Compute **intrinsic (ISF), extrinsic (ESF), and twin stacking fault energies**
+- Evaluate **lattice parameters** for FCC, HCP, and DHCP phases
+- Study **temperature and composition dependence** across a ternary Cr–Co–Fe system
+- Validate numerical results against a **physics-based ANNNI model**
+
+The workflow integrates simulation, automation, data extraction, and visualization.
+
+---
+
+## 📁 Folder Structure
+
+```text
+CrCoFe_StackingFault_Project/
 │
-├── 📂 Benchmarking/
-│ ├── in.benchmark_Cr
-│ ├── in.benchmark_Co
-│ ├── in.benchmark_Fe
-│ ├── log.benchmark_Cr
-│ ├── log.benchmark_Co
-│ ├── log.benchmark_Fe
-│ └── compositions.txt
+├── Benchmarking/
+│   ├── in.benchmark_Cr
+│   ├── in.benchmark_Co
+│   ├── in.benchmark_Fe
+│   ├── log.benchmark_Cr
+│   ├── log.benchmark_Co
+│   ├── log.benchmark_Fe
+│   └── compositions.txt
 │
-├── 📂 Plots/
-│ ├── 📂 ternary_SFE_plots/
-│ │ ├── gamma_ISF_150K.png
-│ │ ├── gamma_ISF_300K.png
-│ │ ├── gamma_ISF_500K.png
-│ │ ├── gamma_ESF_150K.png
-│ │ ├── gamma_ESF_300K.png
-│ │ ├── gamma_ESF_500K.png
-│ │ ├── gamma_Twin_150K.png
-│ │ ├── gamma_Twin_300K.png
-│ │ └── gamma_Twin_500K.png
-│ │
-│ └── 📂 ternary_Lattice_plots/
-│ │ ├── a_fcc_150K.png
-│ │ ├── a_fcc_300K.png
-│ │ ├── a_fcc_500K.png
-│ │ ├── a_hcp_150K.png
-│ │ ├── a_hcp_300K.png
-│ │ ├── a_hcp_500K.png
-│ │ ├── a_dhcp_150K.png
-│ │ ├── a_dhcp_300K.png
-│ │ └── a_dhcp_500K.png
-│ │
-│ ├── 📂 Ovito images/
-│ │ ├── Cr0.33_Co0.33_Fe0.33_fcc_150K.png
-│ │ ├── Cr0.50_Co0.25_Fe0.25_hcp_300K.png
-│ │ ├── Cr0.67_Co0.17_Fe0.17_fcc_500K.png
-│ │ └── Cr1.00_Co0.00_Fe0.00_dhcp_500K.png
-│ │
-│ └── 📂 SFE_vs_Temp
-│ ├── ISF_vs_Temp.png
-│ ├── ESF_vs_Temp.png
-│ └── Twin_vs_Temp.png
+├── Plots/
+│   ├── ternary_SFE_plots/
+│   │   ├── gamma_ISF_150K.png
+│   │   ├── gamma_ISF_300K.png
+│   │   ├── gamma_ISF_500K.png
+│   │   ├── gamma_ESF_150K.png
+│   │   ├── gamma_ESF_300K.png
+│   │   ├── gamma_ESF_500K.png
+│   │   ├── gamma_Twin_150K.png
+│   │   ├── gamma_Twin_300K.png
+│   │   └── gamma_Twin_500K.png
+│   │
+│   ├── ternary_Lattice_plots/
+│   │   ├── a_fcc_150K.png
+│   │   ├── a_fcc_300K.png
+│   │   ├── a_fcc_500K.png
+│   │   ├── a_hcp_150K.png
+│   │   ├── a_hcp_300K.png
+│   │   ├── a_hcp_500K.png
+│   │   ├── a_dhcp_150K.png
+│   │   ├── a_dhcp_300K.png
+│   │   └── a_dhcp_500K.png
+│   │
+│   ├── Ovito_images/
+│   │   ├── Cr0.33_Co0.33_Fe0.33_fcc_150K.png
+│   │   ├── Cr0.50_Co0.25_Fe0.25_hcp_300K.png
+│   │   ├── Cr0.67_Co0.17_Fe0.17_fcc_500K.png
+│   │   └── Cr1.00_Co0.00_Fe0.00_dhcp_500K.png
+│   │
+│   └── SFE_vs_Temp/
+│       ├── ISF_vs_Temp.png
+│       ├── ESF_vs_Temp.png
+│       └── Twin_vs_Temp.png
 │
-├── 📂 Report/
-│ ├── Report.pdf
-│ └── Report.tex
+│   └── All_Results_Compiled/
+│       ├── SFE_all.csv
+│       └── Lattice_all.csv
 │
-├── 📂 Results/
-│ ├── 📂 Cr0.33_Co0.33_Fe0.33/
-│ │ ├── 📂 dat_files/
-│ │ ├── 📂 cfg_files/
-│ │ ├── 📂 out_files/
-│ │ └── log.lammps
-│ ├── (21 compositions total)
-│ │
-│ └── 📂 All_Results_Compiled/
-│ ├── SEF_all.csv
-│ └── Lattice_all.csv
+├── Scripts/
+│   ├── LAMMPS_scripts/
+│   │   ├── CrCoFe.in
+│   │   └── CrCoFe_dhcp.in
+│   │
+│   ├── Python_scripts/
+│   │   ├── extract_energies_and_lattice.py
+│   │   ├── sfe_ternary_plots.py
+│   │   ├── lattice_plots.py
+│   │   ├── make_dhcp_simple.py
+│   │   ├── make_csv_annni_vs_dmlf.py
+│   │   └── make_plots_annni_vs_scaled_dmlf.py
+│   │
+│   ├── Potentials/
+│   │   ├── CrCoFe.meam
+│   │   ├── library.meam
+│   │   └── dhcp_10x10x5.data
+│   │
+│   └── run_all.sh
 │
-├── 📂 Scripts/
-│ ├── 📂 LAMMPS_scripts/
-│ │ ├── CrCoFe.in
-│ │ ├── CrCoFe_dhcp.in
-│ │
-│ ├── 📂 Python_scripts/
-│ │ ├── extract_energies_and_lattice.py
-│ │ ├── sfe_ternary_plots.py
-│ │ ├── lattice_plots.py
-│ │ └── make_dhcp_simple.py
-│ │ ├── make_csv_annni_vs_dmlf.py         
-│ │ └── make_plots_annni_vs_scaled_dmlf.py 
-│ │ 
-│ ├── 📂 Potentials/
-│ │ ├── CrCoFe.meam
-│ │ ├── library.meam
-│ │ └── dhcp_10x10x5.data
-│ │
-│ └── run_all.sh
+├── ANNNI_vs_DMLF/
+│   ├── ANNNI_vs_DMLF_calibrated.csv
+│   ├── output.png
+│   ├── output_1.png
+│   └── output_2.png
 │
-├── 📂 ANNNI_vs_DMLF model comparisions/       
-│   ├── ANNNI_vs_DMLF_calibrated.csv          
-│   ├── output.png                           
-│   ├── output (1).png                        
-│   └── output (2).png
-|
-└── MM_309N_Assignment2.pdf
+└── Report/
+    ├── Report.pdf
+    └── Report.tex
+
 
 
 ---
