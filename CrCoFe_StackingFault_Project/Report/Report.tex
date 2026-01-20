@@ -1,0 +1,234 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{setspace}
+\usepackage{times}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage[normalem]{ulem}
+\usepackage{float}
+
+\geometry{margin=1in}
+\setstretch{1.15}
+
+\titleformat{\section}
+  {\bfseries\fontsize{11}{13}\selectfont}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalsize}{\thesubsection}{1em}{\uline}
+\titleformat{\subsubsection}
+  {\itshape\normalsize}{\thesubsubsection}{1em}{}
+
+\DeclareCaptionFont{tenptfive}{\fontsize{10.5}{12}\selectfont}
+\captionsetup{
+    font=tenptfive,
+    labelfont=bf,
+    justification=centering
+}
+
+\begin{document}
+
+\begin{center}
+    {\fontsize{12}{14}\selectfont\textbf{Assignment 2: Mini-project}}\\[4pt]
+    {\fontsize{12}{14}\selectfont\textbf{Effect of Alloying and Temperature on Fault Energies}}\\[10pt]
+    \normalsize
+    \textbf{Name:} Sanat Kumar Shukla \hspace{1cm}
+    \textbf{Roll No:} 230005043 \\[4pt]
+    MM 309/309N: Computational Methods for Materials \\
+\end{center}
+
+%-----------------------------------------
+\section{Introduction}
+Stacking faults and twin boundaries play a critical role in the deformation mechanisms of metallic systems. 
+In face-centered cubic (FCC) alloys, the stacking fault energy (SFE) dictates the tendency for partial dislocation motion, deformation twinning, and phase stability. 
+In this project, molecular dynamics simulations using the Modified Embedded Atom Method (MEAM) potential were employed to study the effect of alloying and temperature on stacking fault energies and lattice parameters for the Cr–Co–Fe system. 
+Three crystal structures --- FCC, HCP, and DHCP --- were used to determine interfacial fault energies at 150, 300, and 500 K.
+
+%-----------------------------------------
+\section{Methodology}
+
+Molecular dynamics simulations were performed using the LAMMPS package with the Modified Embedded Atom Method (MEAM) potential to model atomic interactions in Cr–Co–Fe alloys. 
+Three phases—face-centered cubic (FCC), hexagonal close-packed (HCP), and double hexagonal close-packed (DHCP)—were simulated at 150, 300, and 500~K.
+
+\subsection{Simulation Details}
+
+Periodic simulation cells were energy-minimized using the conjugate gradient method and equilibrated in the isothermal–isobaric (NPT) ensemble to allow thermal and volumetric relaxation. 
+Each run used a 1~fs time step and extended for 100~ps to ensure stable thermodynamic averages. 
+Energies and lattice parameters were extracted from the \texttt{log.lammps} outputs and post-processed via Python scripts.
+
+\subsection{Computation of Fault Energies}
+
+Stacking and twin fault energies were calculated from the relaxed total energies of FCC, HCP, and DHCP structures using:
+\[
+\gamma_{\mathrm{ISF}} = \frac{4(E_{\mathrm{DHCP}} - E_{\mathrm{FCC}})}{A_{\mathrm{FCC}}}, \quad
+\gamma_{\mathrm{ESF}} = \frac{E_{\mathrm{HCP}} + 2E_{\mathrm{DHCP}} - 3E_{\mathrm{FCC}}}{A_{\mathrm{FCC}}}, \quad
+\gamma_{\mathrm{Twin}} = \frac{2(E_{\mathrm{DHCP}} - E_{\mathrm{FCC}})}{A_{\mathrm{FCC}}},
+\]
+where $E_{\mathrm{FCC}}$, $E_{\mathrm{HCP}}$, and $E_{\mathrm{DHCP}}$ are the total energies per atom, and $A_{\mathrm{FCC}}$ is the basal plane area.
+
+\subsection{Data Analysis}
+
+All results were compiled into \texttt{SFE\_all.csv} and \texttt{Lattice\_all.csv}, then visualized using Python (\texttt{pandas} and \texttt{matplotlib}) through line and ternary contour plots to reveal temperature and compositional trends in fault energies and lattice parameters.
+
+%-----------------------------------------
+\section{Results and Discussion}
+
+\subsection{Variation of Fault Energies}
+
+Table~\ref{tab:combined_faults} summarizes the intrinsic ($\gamma_{\mathrm{ISF}}$), extrinsic ($\gamma_{\mathrm{ESF}}$), and twin ($\gamma_{\mathrm{Twin}}$) fault energies for Cr–Co–Fe alloys. 
+All three show a non-monotonic (``V-shaped'') temperature dependence—decreasing from 150~K to 300~K and increasing again at 500~K—reflecting competition between thermal relaxation and lattice stabilization effects.  
+
+At 300~K, most alloys exhibit $\gamma_{\mathrm{ISF}}$ values of 0.10–0.12~mJ/m$^2$, with lower energies in Co-rich and Cr-lean compositions, indicating greater twinning tendency.  
+Increasing Cr content raises fault energies and stabilizes the FCC lattice, while Co addition reduces $\gamma_{\mathrm{ISF}}$ and $\gamma_{\mathrm{ESF}}$, promoting planar slip.  
+Overall, $\gamma_{\mathrm{Twin}}$ remains roughly half of $\gamma_{\mathrm{ISF}}$, consistent with FCC geometric relations.
+
+
+\begin{table}[h!]
+\centering
+\caption{Intrinsic, extrinsic, and twin fault energies of Cr--Co--Fe alloys at different temperatures.}
+\label{tab:combined_faults}
+\vspace{4pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Alloy (Composition)} & \textbf{Temperature (K)} & \textbf{$\gamma_{\mathrm{ISF}}$ (mJ/m$^2$)} & \textbf{$\gamma_{\mathrm{ESF}}$ (mJ/m$^2$)} & \textbf{$\gamma_{\mathrm{Twin}}$ (mJ/m$^2$)} \\
+\midrule
+Cr$_{0.00}$Co$_{0.00}$Fe$_{1.00}$ & 150 & 0.105 & 0.071 & 0.052 \\
+Cr$_{0.00}$Co$_{0.00}$Fe$_{1.00}$ & 300 & 0.085 & 0.062 & 0.042 \\
+Cr$_{0.00}$Co$_{0.00}$Fe$_{1.00}$ & 500 & 0.121 & 0.080 & 0.060 \\
+Cr$_{0.33}$Co$_{0.33}$Fe$_{0.33}$ & 150 & 0.131 & 0.078 & 0.065 \\
+Cr$_{0.33}$Co$_{0.33}$Fe$_{0.33}$ & 300 & 0.107 & 0.075 & 0.053 \\
+Cr$_{0.33}$Co$_{0.33}$Fe$_{0.33}$ & 500 & 0.147 & 0.089 & 0.073 \\
+Cr$_{0.50}$Co$_{0.25}$Fe$_{0.25}$ & 150 & 0.136 & 0.088 & 0.068 \\
+Cr$_{0.50}$Co$_{0.25}$Fe$_{0.25}$ & 300 & 0.116 & 0.084 & 0.058 \\
+Cr$_{0.50}$Co$_{0.25}$Fe$_{0.25}$ & 500 & 0.185 & 0.132 & 0.092 \\
+Cr$_{0.67}$Co$_{0.17}$Fe$_{0.17}$ & 150 & 0.134 & 0.090 & 0.067 \\
+Cr$_{0.67}$Co$_{0.17}$Fe$_{0.17}$ & 300 & 0.113 & 0.082 & 0.056 \\
+Cr$_{0.67}$Co$_{0.17}$Fe$_{0.17}$ & 500 & 0.154 & 0.110 & 0.077 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Lattice Parameter Variation} The FCC lattice parameter ($a_{\mathrm{fcc}}$) increases moderately with temperature, following normal thermal expansion behavior. At 300~K, $a_{\mathrm{fcc}}$ varies between $\sim$34.5~Å for Cr-rich compositions and $\sim$36.0~Å for Fe-rich ones. The ternary contour map (Figure 2) shows a gradual decrease in lattice parameter with increasing Cr content, reflecting Cr’s smaller atomic radius compared to Fe and Co. At 500~K, the thermal expansion becomes more pronounced, particularly in Fe-rich alloys, indicating anisotropic expansion influenced by local chemical ordering.
+
+\begin{table}[!htbp]
+\centering
+\caption{Lattice parameters (\textit{a}) of Cr--Co--Fe alloys in FCC, HCP, and DHCP structures at different temperatures.}
+\label{tab:lattice_values}
+\vspace{4pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Alloy (Composition)} & \textbf{Temperature (K)} & \textbf{$a_{FCC}$ (\AA)} & \textbf{$a_{HCP}$ (\AA)} & \textbf{$a_{DHCP}$ (\AA)} \\
+\midrule
+Cr$_{0.00}$Co$_{0.00}$Fe$_{1.00}$ & 150 & 36.095 & 25.790 & 53.510 \\
+Cr$_{0.00}$Co$_{0.00}$Fe$_{1.00}$ & 300 & 36.093 & 26.786 & 56.740 \\
+Cr$_{0.00}$Co$_{0.00}$Fe$_{1.00}$ & 500 & 36.205 & 27.518 & 57.220 \\
+Cr$_{0.33}$Co$_{0.33}$Fe$_{0.33}$ & 150 & 34.697 & 23.015 & 53.510 \\
+Cr$_{0.33}$Co$_{0.33}$Fe$_{0.33}$ & 300 & 35.583 & 25.425 & 56.740 \\
+Cr$_{0.33}$Co$_{0.33}$Fe$_{0.33}$ & 500 & 34.458 & 25.545 & 57.220 \\
+Cr$_{0.50}$Co$_{0.25}$Fe$_{0.25}$ & 150 & 34.704 & 25.181 & 53.510 \\
+Cr$_{0.50}$Co$_{0.25}$Fe$_{0.25}$ & 300 & 34.689 & 25.603 & 56.740 \\
+Cr$_{0.50}$Co$_{0.25}$Fe$_{0.25}$ & 500 & 34.205 & 26.561 & 57.220 \\
+Cr$_{0.67}$Co$_{0.17}$Fe$_{0.17}$ & 150 & 34.623 & 26.534 & 53.510 \\
+Cr$_{0.67}$Co$_{0.17}$Fe$_{0.17}$ & 300 & 34.657 & 26.046 & 56.740 \\
+Cr$_{0.67}$Co$_{0.17}$Fe$_{0.17}$ & 500 & 34.579 & 27.423 & 57.220 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{-0.6cm} % pulls next subsection up slightly
+
+\subsection{Ternary Contour Analysis of SFE} The ternary contour plot of $\gamma_{\mathrm{ISF}}$ at 300~K (Figure 1) highlights a compositionally sensitive energy landscape. The minimum SFE values ($\sim$0.084~mJ/m$^2$) occur near the Co-rich, Cr-moderate region, while Cr-rich alloys exhibit higher $\gamma_{\mathrm{ISF}}$ values ($>$0.11~mJ/m$^2$). This indicates that Co promotes planar faulting and deformation twinning, whereas Cr enhances lattice resistance to slip. Such contrasting effects underscore the tunability of deformation mechanisms in Cr–Co–Fe systems through alloy design.
+
+% -----------------------------------------
+\begin{figure}[!htbp]
+\centering
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{../Plots/ternary_SFE_plots/gamma__ISF_mJ_per_m2__300K.png}
+  \caption{Ternary map of intrinsic stacking fault energy ($\gamma_{\mathrm{ISF}}$) at 300~K.}
+  \label{fig:sfe_ternary}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{../Plots/ternary_Lattice_plots/a_fcc_A__300K.png}
+  \caption{Ternary map of FCC lattice parameter ($a_{\mathrm{fcc}}$) at 300~K.}
+  \label{fig:lattice_ternary}
+\end{minipage}
+\end{figure}
+
+\vspace{-0.8cm} % <<--- pulls the next section upward!
+% -----------------------------------------
+%-----------------------------------------
+\begin{figure}[!htbp]
+\centering
+\begin{minipage}{0.38\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{../Plots/SFE_vs_Temp/ISF_vs_temp.png}
+    \caption{Variation of stacking fault energy with temperature for selected Cr–Co–Fe alloys.}
+    \label{fig:sfe_temp}
+\end{minipage}\hfill
+\begin{minipage}{0.54\textwidth}
+    \vspace{-0.5em}
+    \subsection{Temperature Dependence of SFE}
+    \vspace{-0.5em}
+    \normalsize
+    Although a monotonic decrease in SFE with temperature might be expected, 
+    the computed results reveal a clear minimum around 300~K for most compositions. 
+    This ``V-shaped'' trend reflects competition between thermal softening 
+    (which lowers $\gamma_{\mathrm{ISF}}$) and structural relaxation effects 
+    at higher temperatures (which increase $\gamma_{\mathrm{ISF}}$). 
+    At elevated temperatures ($>$400~K), the higher SFE indicates enhanced FCC stability, 
+    suppressing twin and stacking fault formation. Thus, the deformation mode transitions 
+    from twinning-assisted plasticity at intermediate temperatures to dislocation glide 
+    at higher temperatures.
+\end{minipage}
+\end{figure}
+%-----------------------------------------
+
+
+\subsection{Phase Stability Diagram}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.54\textwidth}
+\raggedright
+The phase stability contour map ($\Delta E = E_{\mathrm{HCP}} - E_{\mathrm{FCC}}$) reveals a strong dependence on alloy composition. 
+Fe-rich and Co-lean regions tend to favor the HCP phase (positive $\Delta E$), while Cr-rich and Co-rich compositions stabilize the FCC phase (negative $\Delta E$). 
+This trend aligns with the stacking fault energy results—lower $\gamma_{\mathrm{ISF}}$ corresponds to higher HCP or twinning propensity. 
+Thus, both $\Delta E$ and $\gamma_{\mathrm{ISF}}$ consistently indicate phase and deformation stability in the Cr–Co–Fe system.
+\end{minipage}\hfill
+\begin{minipage}{0.42\textwidth}
+\centering
+\includegraphics[width=\linewidth]{../Plots/phase_diagram.png}
+\caption{Phase stability map of Cr–Co–Fe alloys based on cohesive energy differences.}
+\label{fig:phase_diagram}
+\end{minipage}
+\end{figure}
+
+%-----------------------------------------
+\section{Conclusions}
+
+\begin{itemize}
+\setlength\itemsep{0.25em} % <-- reduces space between bullet points
+    \item The intrinsic, extrinsic, and twin fault energies of Cr–Co–Fe alloys show a non-monotonic (V-shaped) dependence on temperature, reaching a minimum near 300~K. 
+    \item Co-rich alloys exhibit lower fault energies and a stronger twinning tendency, while Cr-rich alloys stabilize the FCC phase with higher SFE values. 
+    \item The FCC lattice parameter increases with temperature and decreases with Cr content, consistent with atomic size and thermal expansion effects. 
+    \item Phase stability and SFE trends together indicate that moderate Cr and high Co fractions favor twinning-assisted plasticity, offering a pathway to optimize strength and ductility. 
+\end{itemize}
+
+
+%-----------------------------------------
+\section*{References}
+\small
+\begin{enumerate}
+    \item V. Vitek, \textit{Philosophical Magazine}, 29 (1974) 385–397.
+    \item D. Finkenstadt and D. D. Johnson, \textit{Acta Materialia}, 54 (2006) 1253–1263.
+    \item M. A. Charpagne, K. V. Vamsi, Y. M. Eggeler, S. P. Murray, C. Frey, S. K. Kolli, T. M. Pollock, \textit{Design of Nickel–Cobalt–Ruthenium multi-principal element alloys}, \textit{Acta Materialia}, 194 (2020) 224–235.
+    \item LAMMPS Documentation: \url{https://www.lammps.org}
+    \item NIST Interatomic Potentials Repository: \url{https://www.ctcms.nist.gov/potentials/}
+\end{enumerate}
+
+\end{document}

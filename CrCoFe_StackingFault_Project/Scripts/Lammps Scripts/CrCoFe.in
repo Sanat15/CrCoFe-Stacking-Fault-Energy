@@ -1,0 +1,55 @@
+# ------------------------------------------------------------
+# LAMMPS input for Cr–Co–Fe alloy (FCC or HCP) - NPT + final snapshot
+# ------------------------------------------------------------
+
+units           metal
+atom_style      atomic
+
+# ---------- Variables ----------
+# These are passed in from the command line:
+#   -var phase (fcc or hcp)
+#   -var T_run (temperature)
+#   -var xCr, xCo, xFe (composition)
+
+# ---------- Lattice and simulation box ----------
+lattice         ${phase} 3.54
+region          whole block 0 10 0 10 0 10 units lattice
+create_box      3 whole
+
+# ---------- Create atoms and random substitution ----------
+create_atoms    1 box
+set             type 1 type/fraction 2 ${xCr} 12345
+set             type 1 type/fraction 3 ${xFe} 54321
+
+# ---------- Potential ----------
+pair_style      meam
+pair_coeff      * * ../library.meam Cr Co Fe ../CrCoFe.meam Cr Co Fe
+
+# ---------- Neighbor settings ----------
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---------- Relaxation + NPT run ----------
+min_style cg
+minimize        1e-6 1e-6 500 5000
+
+velocity        all create ${T_run} 12345 mom yes rot yes dist gaussian
+fix             1 all npt temp ${T_run} ${T_run} 0.5 aniso 0.0 0.0 5.0
+
+thermo_style    custom step temp press pe etotal lx ly lz vol
+thermo          500
+timestep        0.001
+run             20000
+
+# ---------- Output ----------
+write_data      data_${phase}_${T_run}K.dat
+
+variable Lx equal lx
+variable Ly equal ly
+variable Lz equal lz
+print           "Final ${phase} box at ${T_run} K: Lx=${Lx} Ly=${Ly} Lz=${Lz}"
+
+write_dump      all cfg final_${phase}_${T_run}K.cfg mass type xs ys zs
+
+unfix 1
+

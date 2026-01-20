@@ -1,0 +1,57 @@
+# --- TASK 3.1: Benchmark Pure HCP Cobalt (Co) ---
+# Objective: Find equilibrium lattice parameters (a, c) and cohesive energy (E_coh)
+
+# --- 1. Initialization ---
+units          metal
+boundary       p p p
+atom_style     atomic
+log            log.benchmark_Co
+
+# --- 2. Create Atoms ---
+# Experimental guesses for HCP Co
+variable       a_guess equal 2.503
+variable       c_guess equal 4.057
+variable       c_over_a equal ${c_guess}/${a_guess}
+
+# The 'lattice hcp' command uses a scaling factor and the c/a ratio
+lattice        hcp ${a_guess}
+
+# Create a 10x10x6 supercell
+region         sim_box block 0 10 0 10 0 6
+create_box     1 sim_box
+create_atoms   1 box
+
+# --- 3. Define Potential ---
+pair_style     meam
+pair_coeff     * * /home/mems/Desktop/SFE_Project9/library.meam Cr Co Fe /home/mems/Desktop/SFE_Project9/CrCoFe.meam Co
+
+# --- 4. Settings ---
+variable       E_per_atom equal pe/count(all)
+thermo         10
+thermo_style   custom step pe v_E_per_atom lx ly lz
+
+# --- 5. Run Minimization ---
+# We use 'aniso' (anisotropic) to allow a and c to relax independently.
+# 'z' is relaxed separately from 'x' and 'y'
+fix            1 all box/relax x 0.0 y 0.0 z 0.0 aniso 0.0
+
+minimize       1.0e-15 1.0e-15 5000 10000
+
+# --- 6. Final Output ---
+# 'a' is the box length in x (lx) divided by 10 unit cells
+variable a_final equal lx/10.0
+# 'c' is the box length in z (lz) divided by 6 unit cells
+variable c_final equal lz/6.0
+variable c_over_a_final equal ${c_final}/${a_final}
+
+print "---"
+print "Benchmark Results for HCP Cobalt (Co)"
+print "Target Lattice Parameter (a): ~2.503 A"
+print "Target Lattice Parameter (c): ~4.057 A"
+print "Target Cohesive Energy (E_coh): ~4.39 eV/atom"
+print "---"
+print "Final Lattice Parameter (a): ${a_final} Angstroms"
+print "Final Lattice Parameter (c): ${c_final} Angstroms"
+print "Final c/a ratio: ${c_over_a_final}"
+print "Final Cohesive Energy (E_coh = -E_pe): -${E_per_atom} eV/atom"
+print "---"

@@ -1,0 +1,55 @@
+# --- TASK 3.1: Benchmark Pure BCC Iron (Fe) ---
+# Objective: Find the equilibrium lattice parameter (a) and cohesive energy (E_coh)
+#          and compare to experimental values.
+
+# --- 1. Initialization ---
+units          metal
+boundary       p p p
+atom_style     atomic
+log            log.benchmark_Fe
+
+# --- 2. Create Atoms ---
+# We start with a guess for the lattice parameter based on the experimental value.
+# The 'fix box/relax' command will find the true minimum for this potential.
+variable       a_guess equal 2.867
+lattice        bcc ${a_guess}
+
+# [cite_start]Create a 10x10x10 supercell [cite: 20]
+region         sim_box block 0 10 0 10 0 10
+create_box     1 sim_box
+create_atoms   1 box
+
+# --- 3. Define Potential ---
+# This tells LAMMPS to use your downloaded MEAM files.
+pair_style     meam
+pair_coeff     * * /home/mems/Desktop/SFE_Project9/library.meam Cr Co Fe /home/mems/Desktop/SFE_Project9/CrCoFe.meam Fe
+
+# --- 4. Settings ---
+# Compute potential energy per atom
+variable       E_per_atom equal pe/count(all)
+
+# Set thermodynamic output
+thermo         10
+thermo_style   custom step pe v_E_per_atom lx ly lz
+
+# --- 5. Run Minimization ---
+# This command relaxes the simulation box to a zero-pressure state (iso = isotropic)
+# while minimizing the energy. This finds the equilibrium lattice parameter.
+fix            1 all box/relax iso 0.0
+
+# Run the energy minimization
+minimize       1.0e-15 1.0e-15 5000 10000
+
+# --- 6. Final Output ---
+# Calculate the final lattice parameter
+# (lx is the final box length, which is 10 unit cells long)
+variable a_final equal lx/10.0
+
+print "---"
+print "Benchmark Results for BCC Iron (Fe)"
+print "Target Lattice Parameter (a): ~2.867 A"
+print "Target Cohesive Energy (E_coh): ~4.28 eV/atom"
+print "---"
+print "Final Lattice Parameter (a): ${a_final} Angstroms"
+print "Final Cohesive Energy (E_coh = -E_pe): -${E_per_atom} eV/atom"
+print "---"

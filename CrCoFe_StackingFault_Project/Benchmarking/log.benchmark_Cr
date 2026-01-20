@@ -1,0 +1,111 @@
+
+# --- 2. Create Atoms ---
+# Experimental guess for BCC Cr lattice parameter
+variable       a_guess equal 2.885
+lattice        bcc ${a_guess}
+lattice        bcc 2.885
+Lattice spacing in x,y,z = 2.885 2.885 2.885
+
+# Create a 10x10x10 supercell
+region         sim_box block 0 10 0 10 0 10
+create_box     1 sim_box
+Created orthogonal box = (0 0 0) to (28.85 28.85 28.85)
+  1 by 1 by 1 MPI processor grid
+create_atoms   1 box
+Created 2000 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.85 28.85 28.85)
+  create_atoms CPU = 0.000 seconds
+
+# --- 3. Define Potential ---
+pair_style     meam
+pair_coeff     * * /home/mems/Desktop/SFE_Project9/library.meam Cr Co Fe /home/mems/Desktop/SFE_Project9/CrCoFe.meam Cr
+
+# --- 4. Settings ---
+variable       E_per_atom equal pe/count(all)
+thermo         10
+thermo_style   custom step pe v_E_per_atom lx ly lz
+
+# --- 5. Run Minimization ---
+fix            1 all box/relax iso 0.0
+minimize       1.0e-15 1.0e-15 5000 10000
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 7
+  ghost atom cutoff = 7
+  binsize = 3.5, bins = 9 9 9
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair meam, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+  (2) pair meam, perpetual, half/full from (1)
+      attributes: half, newton on
+      pair build: halffull/newton
+      stencil: none
+      bin: none
+WARNING: Energy due to 1 extra global DOFs will be included in minimizer energies
+ (src/min.cpp:219)
+Per MPI rank memory allocation (min/avg/max) = 14.37 | 14.37 | 14.37 Mbytes
+   Step         PotEng      v_E_per_atom        Lx             Ly             Lz      
+         0  -8199.7847     -4.0998924      28.85          28.85          28.85        
+        10  -8199.9828     -4.0999914      28.82115       28.82115       28.82115     
+        17  -8200          -4.1            28.80978       28.80978       28.80978     
+Loop time of 0.595335 on 1 procs for 17 steps with 2000 atoms
+
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -8199.78471377015  -8200.00002186511  -8200.00002186511
+  Force two-norm initial, final = 308.07312 1.9736709e-12
+  Force max component initial, final = 308.07312 1.193032e-12
+  Final line search alpha, max atom move = 1 1.193032e-12
+  Iterations, force evaluations = 17 21
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.5937     | 0.5937     | 0.5937     |   0.0 | 99.72
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.00023815 | 0.00023815 | 0.00023815 |   0.0 |  0.04
+Output  | 2.671e-05  | 2.671e-05  | 2.671e-05  |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.001373   |            |       |  0.23
+
+Nlocal:           2000 ave        2000 max        2000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           4119 ave        4119 max        4119 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         112000 ave      112000 max      112000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:       224000 ave      224000 max      224000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 224000
+Ave neighs/atom = 112
+Neighbor list builds = 0
+Dangerous builds = 0
+
+# --- 6. Final Output ---
+variable a_final equal lx/10.0
+
+print "---"
+---
+print "Benchmark Results for BCC Chromium (Cr)"
+Benchmark Results for BCC Chromium (Cr)
+print "Target Lattice Parameter (a): ~2.885 A"
+Target Lattice Parameter (a): ~2.885 A
+print "Target Cohesive Energy (E_coh): ~4.10 eV/atom"
+Target Cohesive Energy (E_coh): ~4.10 eV/atom
+print "---"
+---
+print "Final Lattice Parameter (a): ${a_final} Angstroms"
+Final Lattice Parameter (a): 2.88097796810564 Angstroms
+print "Final Cohesive Energy (E_coh = -E_pe): -${E_per_atom} eV/atom"
+Final Cohesive Energy (E_coh = -E_pe): --4.10000001093256 eV/atom
+print "---"
+---
+Total wall time: 0:00:00

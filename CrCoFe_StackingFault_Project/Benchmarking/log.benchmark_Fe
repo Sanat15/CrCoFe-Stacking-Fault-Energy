@@ -1,0 +1,134 @@
+
+# --- 2. Create Atoms ---
+# We start with a guess for the lattice parameter based on the experimental value.
+# The 'fix box/relax' command will find the true minimum for this potential.
+variable       a_guess equal 2.867
+lattice        bcc ${a_guess}
+lattice        bcc 2.867
+Lattice spacing in x,y,z = 2.867 2.867 2.867
+
+# [cite_start]Create a 10x10x10 supercell [cite: 20]
+region         sim_box block 0 10 0 10 0 10
+create_box     1 sim_box
+Created orthogonal box = (0 0 0) to (28.67 28.67 28.67)
+  1 by 1 by 1 MPI processor grid
+create_atoms   1 box
+Created 2000 atoms
+  using lattice units in orthogonal box = (0 0 0) to (28.67 28.67 28.67)
+  create_atoms CPU = 0.000 seconds
+
+# --- 3. Define Potential ---
+# This tells LAMMPS to use your downloaded MEAM files.
+pair_style     meam
+pair_coeff     * * /home/mems/Desktop/SFE_Project9/library.meam Cr Co Fe /home/mems/Desktop/SFE_Project9/CrCoFe.meam Fe
+
+# --- 4. Settings ---
+# Compute potential energy per atom
+variable       E_per_atom equal pe/count(all)
+
+# Set thermodynamic output
+thermo         10
+thermo_style   custom step pe v_E_per_atom lx ly lz
+
+# --- 5. Run Minimization ---
+# This command relaxes the simulation box to a zero-pressure state (iso = isotropic)
+# while minimizing the energy. This finds the equilibrium lattice parameter.
+fix            1 all box/relax iso 0.0
+
+# Run the energy minimization
+minimize       1.0e-15 1.0e-15 5000 10000
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 7
+  ghost atom cutoff = 7
+  binsize = 3.5, bins = 9 9 9
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair meam, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+  (2) pair meam, perpetual, half/full from (1)
+      attributes: half, newton on
+      pair build: halffull/newton
+      stencil: none
+      bin: none
+WARNING: Energy due to 1 extra global DOFs will be included in minimizer energies
+ (src/min.cpp:219)
+Per MPI rank memory allocation (min/avg/max) = 14.37 | 14.37 | 14.37 Mbytes
+   Step         PotEng      v_E_per_atom        Lx             Ly             Lz      
+         0  -8560.3295     -4.2801648      28.67          28.67          28.67        
+        10  -8563.0135     -4.2815067      28.64133       28.64133       28.64133     
+        20  -8565.5021     -4.2827511      28.61266       28.61266       28.61266     
+        30  -8567.7934     -4.2838967      28.58399       28.58399       28.58399     
+        40  -8569.8851     -4.2849426      28.55532       28.55532       28.55532     
+        50  -8571.7753     -4.2858877      28.52665       28.52665       28.52665     
+        60  -8573.4619     -4.2867309      28.49798       28.49798       28.49798     
+        70  -8574.9426     -4.2874713      28.46931       28.46931       28.46931     
+        80  -8576.2154     -4.2881077      28.44064       28.44064       28.44064     
+        90  -8577.278      -4.288639       28.41197       28.41197       28.41197     
+       100  -8578.1284     -4.2890642      28.3833        28.3833        28.3833      
+       110  -8578.7643     -4.2893821      28.35463       28.35463       28.35463     
+       120  -8579.1835     -4.2895917      28.32596       28.32596       28.32596     
+       130  -8579.3837     -4.2896919      28.29729       28.29729       28.29729     
+       138  -8579.4021     -4.289701       28.28564       28.28564       28.28564     
+Loop time of 3.10674 on 1 procs for 138 steps with 2000 atoms
+
+99.9% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -8560.32950168001  -8579.40205191927  -8579.40205191927
+  Force two-norm initial, final = 2780.9546 8.4779954e-12
+  Force max component initial, final = 2780.9546 3.6906546e-12
+  Final line search alpha, max atom move = 1 3.6906546e-12
+  Iterations, force evaluations = 138 142
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 3.0946     | 3.0946     | 3.0946     |   0.0 | 99.61
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0015853  | 0.0015853  | 0.0015853  |   0.0 |  0.05
+Output  | 0.00037714 | 0.00037714 | 0.00037714 |   0.0 |  0.01
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.01019    |            |       |  0.33
+
+Nlocal:           2000 ave        2000 max        2000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           4119 ave        4119 max        4119 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         112000 ave      112000 max      112000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:       224000 ave      224000 max      224000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 224000
+Ave neighs/atom = 112
+Neighbor list builds = 0
+Dangerous builds = 0
+
+# --- 6. Final Output ---
+# Calculate the final lattice parameter
+# (lx is the final box length, which is 10 unit cells long)
+variable a_final equal lx/10.0
+
+print "---"
+---
+print "Benchmark Results for BCC Iron (Fe)"
+Benchmark Results for BCC Iron (Fe)
+print "Target Lattice Parameter (a): ~2.867 A"
+Target Lattice Parameter (a): ~2.867 A
+print "Target Cohesive Energy (E_coh): ~4.28 eV/atom"
+Target Cohesive Energy (E_coh): ~4.28 eV/atom
+print "---"
+---
+print "Final Lattice Parameter (a): ${a_final} Angstroms"
+Final Lattice Parameter (a): 2.82856395030411 Angstroms
+print "Final Cohesive Energy (E_coh = -E_pe): -${E_per_atom} eV/atom"
+Final Cohesive Energy (E_coh = -E_pe): --4.28970102595963 eV/atom
+print "---"
+---
+Total wall time: 0:00:03

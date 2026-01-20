@@ -1,0 +1,48 @@
+# ------------------------------------------------------------
+# LAMMPS input for Cr–Co–Fe (DHCP phase) - NPT + final snapshot
+# ------------------------------------------------------------
+
+units           metal
+atom_style      atomic
+
+# ---------- Variables ----------
+variable phase  index dhcp
+variable T_run  index 300.0
+
+# ---------- Read structure ----------
+read_data       ../dhcp_10x10x5.data
+
+# ---------- Potential ----------
+pair_style      meam
+pair_coeff      * * ../library.meam Cr Co Fe ../CrCoFe.meam Cr Co Fe
+
+# ---------- Neighbor settings ----------
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---------- Relaxation + NPT run ----------
+min_style cg
+minimize        1e-6 1e-6 500 5000
+
+velocity        all create ${T_run} 12345 mom yes rot yes dist gaussian
+fix             1 all npt temp ${T_run} ${T_run} 0.5 aniso 0.0 0.0 5.0
+
+thermo_style    custom step temp press pe etotal lx ly lz vol
+thermo          500
+timestep        0.001
+run             20000
+
+# ---------- Output ----------
+write_data      data_${phase}_${T_run}K.dat
+
+variable Lx equal lx
+variable Ly equal ly
+variable Lz equal lz
+print "Final ${phase} box at ${T_run} K: Lx=${Lx} Ly=${Ly} Lz=${Lz}"
+
+write_dump      all cfg final_${phase}_${T_run}K.cfg mass type xs ys zs
+
+
+
+unfix 1
+

@@ -1,0 +1,43 @@
+# --- TASK 3.1: Benchmark Pure BCC Chromium (Cr) ---
+# Objective: Find the equilibrium lattice parameter (a) and cohesive energy (E_coh)
+
+# --- 1. Initialization ---
+units          metal
+boundary       p p p
+atom_style     atomic
+log            log.benchmark_Cr
+
+# --- 2. Create Atoms ---
+# Experimental guess for BCC Cr lattice parameter
+variable       a_guess equal 2.885
+lattice        bcc ${a_guess}
+
+# Create a 10x10x10 supercell
+region         sim_box block 0 10 0 10 0 10
+create_box     1 sim_box
+create_atoms   1 box
+
+# --- 3. Define Potential ---
+pair_style     meam
+pair_coeff     * * /home/mems/Desktop/SFE_Project9/library.meam Cr Co Fe /home/mems/Desktop/SFE_Project9/CrCoFe.meam Cr
+
+# --- 4. Settings ---
+variable       E_per_atom equal pe/count(all)
+thermo         10
+thermo_style   custom step pe v_E_per_atom lx ly lz
+
+# --- 5. Run Minimization ---
+fix            1 all box/relax iso 0.0
+minimize       1.0e-15 1.0e-15 5000 10000
+
+# --- 6. Final Output ---
+variable a_final equal lx/10.0
+
+print "---"
+print "Benchmark Results for BCC Chromium (Cr)"
+print "Target Lattice Parameter (a): ~2.885 A"
+print "Target Cohesive Energy (E_coh): ~4.10 eV/atom"
+print "---"
+print "Final Lattice Parameter (a): ${a_final} Angstroms"
+print "Final Cohesive Energy (E_coh = -E_pe): -${E_per_atom} eV/atom"
+print "---"

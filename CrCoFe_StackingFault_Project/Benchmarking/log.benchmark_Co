@@ -1,0 +1,137 @@
+
+# --- 2. Create Atoms ---
+# Experimental guesses for HCP Co
+variable       a_guess equal 2.503
+variable       c_guess equal 4.057
+variable       c_over_a equal ${c_guess}/${a_guess}
+variable       c_over_a equal 4.057/${a_guess}
+variable       c_over_a equal 4.057/2.503
+
+# The 'lattice hcp' command uses a scaling factor and the c/a ratio
+lattice        hcp ${a_guess}
+lattice        hcp 2.503
+Lattice spacing in x,y,z = 2.503 4.3353232 4.0873819
+
+# Create a 10x10x6 supercell
+region         sim_box block 0 10 0 10 0 6
+create_box     1 sim_box
+Created orthogonal box = (0 0 0) to (25.03 43.353232 24.524291)
+  1 by 1 by 1 MPI processor grid
+create_atoms   1 box
+Created 2400 atoms
+  using lattice units in orthogonal box = (0 0 0) to (25.03 43.353232 24.524291)
+  create_atoms CPU = 0.000 seconds
+
+# --- 3. Define Potential ---
+pair_style     meam
+pair_coeff     * * /home/mems/Desktop/SFE_Project9/library.meam Cr Co Fe /home/mems/Desktop/SFE_Project9/CrCoFe.meam Co
+
+# --- 4. Settings ---
+variable       E_per_atom equal pe/count(all)
+thermo         10
+thermo_style   custom step pe v_E_per_atom lx ly lz
+
+# --- 5. Run Minimization ---
+# We use 'aniso' (anisotropic) to allow a and c to relax independently.
+# 'z' is relaxed separately from 'x' and 'y'
+fix            1 all box/relax x 0.0 y 0.0 z 0.0 aniso 0.0
+
+minimize       1.0e-15 1.0e-15 5000 10000
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 7
+  ghost atom cutoff = 7
+  binsize = 3.5, bins = 8 13 8
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair meam, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+  (2) pair meam, perpetual, half/full from (1)
+      attributes: half, newton on
+      pair build: halffull/newton
+      stencil: none
+      bin: none
+WARNING: Energy due to 3 extra global DOFs will be included in minimizer energies
+ (src/min.cpp:219)
+Per MPI rank memory allocation (min/avg/max) = 16.39 | 16.39 | 16.39 Mbytes
+   Step         PotEng      v_E_per_atom        Lx             Ly             Lz      
+         0  -10572.097     -4.4050404      25.03          43.353232      24.524291    
+        10  -10572.326     -4.4051356      25.029044      43.351576      24.499767    
+        20  -10572.503     -4.4052096      25.030626      43.354317      24.475243    
+        30  -10572.639     -4.4052665      25.035136      43.362128      24.450718    
+        40  -10572.74      -4.4053085      25.04283       43.375454      24.426194    
+        50  -10572.804     -4.405335       25.053525      43.393979      24.40167     
+        60  -10572.823     -4.4053431      25.064745      43.413412      24.379788    
+        64  -10572.823     -4.4053431      25.064745      43.413412      24.379788    
+Loop time of 2.38948 on 1 procs for 64 steps with 2400 atoms
+
+99.6% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = energy tolerance
+  Energy initial, next-to-last, final = 
+     -10572.0968485487   -10572.823386866   -10572.823386866
+  Force two-norm initial, final = 256.52369 2.5103049e-11
+  Force max component initial, final = 254.9232 1.5746847e-11
+  Final line search alpha, max atom move = 1 1.5746847e-11
+  Iterations, force evaluations = 64 70
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 2.382      | 2.382      | 2.382      |   0.0 | 99.69
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.00097131 | 0.00097131 | 0.00097131 |   0.0 |  0.04
+Output  | 0.00016806 | 0.00016806 | 0.00016806 |   0.0 |  0.01
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.006348   |            |       |  0.27
+
+Nlocal:           2400 ave        2400 max        2400 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           5401 ave        5401 max        5401 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         160800 ave      160800 max      160800 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:       321600 ave      321600 max      321600 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 321600
+Ave neighs/atom = 134
+Neighbor list builds = 0
+Dangerous builds = 0
+
+# --- 6. Final Output ---
+# 'a' is the box length in x (lx) divided by 10 unit cells
+variable a_final equal lx/10.0
+# 'c' is the box length in z (lz) divided by 6 unit cells
+variable c_final equal lz/6.0
+variable c_over_a_final equal ${c_final}/${a_final}
+variable c_over_a_final equal 4.06329803748135/${a_final}
+variable c_over_a_final equal 4.06329803748135/2.50647453818112
+
+print "---"
+---
+print "Benchmark Results for HCP Cobalt (Co)"
+Benchmark Results for HCP Cobalt (Co)
+print "Target Lattice Parameter (a): ~2.503 A"
+Target Lattice Parameter (a): ~2.503 A
+print "Target Lattice Parameter (c): ~4.057 A"
+Target Lattice Parameter (c): ~4.057 A
+print "Target Cohesive Energy (E_coh): ~4.39 eV/atom"
+Target Cohesive Energy (E_coh): ~4.39 eV/atom
+print "---"
+---
+print "Final Lattice Parameter (a): ${a_final} Angstroms"
+Final Lattice Parameter (a): 2.50647453818112 Angstroms
+print "Final Lattice Parameter (c): ${c_final} Angstroms"
+Final Lattice Parameter (c): 4.06329803748135 Angstroms
+print "Final c/a ratio: ${c_over_a_final}"
+Final c/a ratio: 1.62112081155629
+print "Final Cohesive Energy (E_coh = -E_pe): -${E_per_atom} eV/atom"
+Final Cohesive Energy (E_coh = -E_pe): --4.40534307786083 eV/atom
+print "---"
+---
+Total wall time: 0:00:02
